@@ -1,2 +1,2 @@
-# smart_hour_telegram_bot_programming
-Смартчас "Telegram Chat Bot Programming (advanced)"
+# Смартчас "Telegram Chat Bot Programming (advanced) with Python 🐍"
+
