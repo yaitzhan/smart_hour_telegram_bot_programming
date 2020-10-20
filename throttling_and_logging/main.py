@@ -28,9 +28,9 @@ bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher(bot, storage=storage)
 
 
-async def on_shutdown(disp):
-    await disp.storage.close()
-    await disp.storage.wait_closed()
+async def on_shutdown():
+    await dp.storage.close()
+    await dp.storage.wait_closed()
 
 
 class ThrottlingMiddleware(BaseMiddleware):

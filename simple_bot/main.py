@@ -12,6 +12,10 @@ from aiogram import Bot, Dispatcher, executor, types
 # скопируйте токен полученный от @BotFather
 BOT_TOKEN = ''
 
+
+# регулярное выражение для email-адресов (https://emailregex.com/)
+EMAIL_REGEX = """(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])"""
+
 # логгирование
 logging.basicConfig(level=logging.INFO)
 
@@ -27,20 +31,20 @@ USER_MENU.add(types.KeyboardButton('Отправить свою локацию �
 
 @dp.message_handler(commands=['start'])
 async def send_welcome(message: types.Message):
-    """
-    Оператор, отслеживающий событие: пользователь ввел `/start`
-    """
     kbd = types.ReplyKeyboardRemove()  # убрать текущие кнопки
     text = "Я простой бот!"  # можно поменять текст
+    await message.reply(text, reply_markup=kbd)
+
+
+@dp.message_handler(commands=['menu'])
+async def send_welcome(message: types.Message):
+    text = "Простое меню"
     await message.reply(text, reply_markup=USER_MENU)
 
 
 @dp.message_handler(commands=['help'])
 async def send_welcome(message: types.Message):
-    """
-    Оператор, отслеживающий событие: пользователь ввел `/help`
-    """
-    text = "Спешу на помощь!"  # можно поменять текст
+    text = "Спешу на помощь!"
     await message.reply(text)
 
 
@@ -61,6 +65,7 @@ async def content_contact_handler(message: types.Message):
 
 @dp.message_handler(content_types=types.ContentTypes.LOCATION)
 async def content_contact_handler(message: types.Message):
+    await bot.delete_message(message.chat.id, message.message_id)
     await bot.send_message(message.chat.id, 'Вы отправили гео-локацию')
 
 
@@ -71,7 +76,12 @@ async def content_contact_handler(message: types.Message):
 
 @dp.message_handler(regexp='стикер')
 async def content_contact_handler(message: types.Message):
-    await bot.send_sticker(message.chat.id, '')
+    await bot.send_sticker(message.chat.id, 'https://raw.githubusercontent.com/yaitzhan/smart_hour_telegram_bot_programming/main/simple_bot/data/sample_sticker.webp?token=AHFRIIVDL3GFDVM5WPWD6F27R2FVW')
+
+
+@dp.message_handler(regexp=EMAIL_REGEX)
+async def email_handler(message: types.Message):
+    await bot.send_message(message.chat.id, 'Вы отправили валидный email-адрес')
 
 
 @dp.message_handler()

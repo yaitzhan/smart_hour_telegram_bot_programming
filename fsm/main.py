@@ -50,6 +50,11 @@ CANCEL_MENU = types.ReplyKeyboardMarkup()
 CANCEL_MENU.add(types.KeyboardButton('Отмена'))
 
 
+def on_shutdown():
+    await dp.storage.close()
+    await dp.storage.wait_closed()
+
+
 @dp.message_handler(state='*', commands=['start'])
 @dp.message_handler(state='*', regexp=r'^Отмена$')
 async def send_menus(message: types.Message):
@@ -117,4 +122,4 @@ async def unknown_message_handler(message: types.Message):
 
 
 if __name__ == '__main__':
-    executor.start_polling(dp, skip_updates=True)
+    executor.start_polling(dp, skip_updates=True, on_shutdown=on_shutdown)
