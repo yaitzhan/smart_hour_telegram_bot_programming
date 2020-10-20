@@ -1,8 +1,6 @@
 """
 Работа с БД.
 
-Смартчас "Знакомство с Python"
-
 Смартчас "Telegram Chat Bot Programming (advanced)"
 """
 import logging
@@ -75,11 +73,18 @@ async def save_number(message: types.Message):
         await bot.send_message(message.chat.id, 'Номер записан')
 
 
-@dp.message_handler(commands=['search'])
-async def show_users_command(message: types.Message):
+# TODO: реализовать хэндлер для поиска пользователя по номеру телефона
+# @dp.message_handler(commands=['search'])
+# async def search_user_by_phone_number_command(message: types.Message):
+#
+#     await bot.send_message(message.chat.id, 'Введите имя')
 
-    await bot.send_message(message.chat.id, 'Введите имя')
 
+# TODO: реализовать хэндлер для поиска пользователя по имени
+# @dp.message_handler(commands=['search'])
+# async def search_user_by_name_command(message: types.Message):
+#
+#     await bot.send_message(message.chat.id, 'Введите имя')
 
 if __name__ == '__main__':
     executor.start_polling(dp, skip_updates=True, on_shutdown=on_shutdown)

@@ -1,5 +1,13 @@
 """
-Простой echo бот.
+Обзор библиотеки aiogram.
+
+https://github.com/aiogram/aiogram
+
+- 100% асихронность
+- встроенные FSM
+- middleware
+- логирование
+- регулярные апдейты
 
 Смартчас "Telegram Chat Bot Programming (advanced)"
 """
