@@ -64,13 +64,13 @@ AUTHORIZED_MENU = types.ReplyKeyboardMarkup(resize_keyboard=True)
 AUTHORIZED_MENU.add(types.KeyboardButton('Секретная кнопка'))
 
 
-async def check_if_user_exist(user_id):
-    user = await TelegramUser.get_or_none(user_id__contains=user_id, authorized=True)
+async def check_if_user_exist(phone_number):
+    user = await TelegramUser.get_or_none(phone_number=phone_number)
     return user
 
 
-async def check_if_authorized(user_id):
-    user = await TelegramUser.filter(user_id__contains=user_id, authorized=True)
+async def check_if_authorized(message: types.Message):
+    user = await TelegramUser.filter(user_id__contains=message.from_user.id, authorized=True)
     if user:
         return True
     else:
@@ -86,12 +86,12 @@ async def send_welcome(message: types.Message):
     state = dp.current_state(chat=message.chat.id, user=message.chat.id)
     await state.set_state(AWAIT_CONTACT)
     text = "Пример авторизации"
-    await bot.send_message(message.chat.id, text, reply_markup=types.ReplyKeyboardRemove)
+    await bot.send_message(message.chat.id, text, reply_markup=USER_MENU)
 
 
 @dp.message_handler(state=AWAIT_CONTACT, content_types=types.ContentTypes.CONTACT)
 async def check_user_existence(message: types.Message):
-    user_object = await check_if_user_exist(message.from_user.id)
+    user_object = await check_if_user_exist(message.contact.phone_number)
     if user_object is not None:
         state = dp.current_state(chat=message.chat.id, user=message.chat.id)
         await state.set_state(AWAIT_PASSWORD)
@@ -100,18 +100,28 @@ async def check_user_existence(message: types.Message):
         await bot.send_message(message.chat.id, 'Пользователь с таким номером не найден')
 
 
-@dp.message_handler(state=AWAIT_PASSWORD, content_types=types.ContentTypes.CONTACT)
+@dp.message_handler(state='*', commands=['clear'])
+async def remove_menu_buttons(message: types.Message):
+    await bot.send_message(message.chat.id, '👌', reply_markup=types.ReplyKeyboardRemove())
+
+
+@dp.message_handler(state=AWAIT_PASSWORD)
 async def check_user_password(message: types.Message):
     if message.text == GENERATED_PASSWORD:
-        user_object = await check_if_user_exist(message.from_user.id)
+        user_object = await TelegramUser.get(user_id=message.from_user.id)
         user_object.authorized = True
         await user_object.save()
+
+        # здесь уже можно переводить в другие состояния
+        state = dp.current_state(chat=message.chat.id, user=message.chat.id)
+        await state.set_state('*')
+
         await bot.send_message(message.chat.id, 'Тссс! Показываю скрытое меню', reply_markup=AUTHORIZED_MENU)
     else:
         await bot.send_message(message.chat.id, 'Неправильный пароль')
 
 
-@dp.message_handler(commands=['menu'])
+@dp.message_handler(check_if_authorized, commands=['menu'])
 async def show_menu_authorized(message: types.Message):
     await bot.send_message(message.chat.id, 'Тссс! Показываю скрытое меню', reply_markup=AUTHORIZED_MENU)
 
